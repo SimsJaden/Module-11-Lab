@@ -1,4 +1,125 @@
-h1{
-  border-color: #d3e644;
-  border-style: dashed;
+/* General Body Styling */
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background-color: #f4f4f4;
+}
+
+/* Title Styling */
+h1 {
+  color: #007BFF;
+  transition: color 0.3s ease;
+}
+
+h1:hover {
+  color: #FF5733;
+}
+
+/* Table Styling */
+#item-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+#item-table th,
+#item-table td {
+  border: 1px solid #ccc;
+  padding: 12px;
+  text-align: left;
+}
+
+/* Header Styling - Set background color to blue */
+#item-table th {
+  background-color: #007BFF;
+  color: white;
+  text-transform: uppercase;
+}
+
+/* Zebra Striping for Rows */
+#item-table tbody tr:nth-child(even) {
+  background-color: #d1d1d1;
+}
+
+#item-table tbody tr:nth-child(odd) {
+  background-color: white;
+}
+
+.rainbow {
+  display: inline-block;
+}
+
+/* Hover Effect */
+#item-table tbody tr:hover {
+  background-color: #f1f1f1;
+  transition: background-color 0.3s;
+}
+
+/* Form Styling */
+#item-form {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Overlay Background */
+#item-form::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  z-index: -1;
+}
+
+/* Form Fields */
+.form-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+/* Input and Button Styling */
+input[type="text"],
+input[type="number"] {
+  width: 70%;
+  padding: 10px;
+  margin-left: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+/* Cancel Button Styling */
+#close-form {
+  background-color: #dc3545;
+}
+
+#close-form:hover {
+  background-color: #c82333;
 }

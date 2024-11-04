@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
@@ -7,55 +7,172 @@
     <title>Test AWS Lambda</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <h1>Simple Demo for PUT, GET, and DELETE</h1>
-    <p id="lambda-info">
-        <!-- loaded with AJAX -->
-    </p>
+    <!-- Seperating each letter for rainbow effect -->
+    <h1>
+        <span class="rainbow">P</span>
+        <span class="rainbow">U</span>
+        <span class="rainbow">T</span>
+        <span class="rainbow">,</span>
+        <span class="rainbow"> </span>
+        <span class="rainbow">G</span>
+        <span class="rainbow">E</span>
+        <span class="rainbow">T</span>
+        <span class="rainbow">,</span>
+        <span class="rainbow"> </span>
+        <span class="rainbow">A</span>
+        <span class="rainbow">N</span>
+        <span class="rainbow">D</span>
+        <span class="rainbow"> </span>
+        <span class="rainbow">D</span>
+        <span class="rainbow">E</span>
+        <span class="rainbow">L</span>
+        <span class="rainbow">E</span>
+        <span class="rainbow">T</span>
+        <span class="rainbow">E</span>
+        <span class="rainbow"> </span>
+        <span class="rainbow">D</span>
+        <span class="rainbow">E</span>
+        <span class="rainbow">M</span>
+        <span class="rainbow">O</span>
+    </h1>
+    
 
-    <hr>
-    <button id="send-data">Send Data</button>
-    <p>Sends an example JSON object to the server with id 11111</p>
+    <button id="add-new">Add New</button>
+    <button id="load-data">Load All</button>
+
+    <div id="item-form">
+        <div class="form-content">
+            <h2>Add New Item</h2>
+            <div class="form-group">
+                <label for="item-id">ID:</label>
+                <input type="text" id="item-id" required>
+            </div>
+            <div class="form-group">
+                <label for="item-name">Name:</label>
+                <input type="text" id="item-name" required>
+            </div>
+            <div class="form-group">
+                <label for="item-price">Price:</label>
+                <input type="number" id="item-price" required>
+            </div>
+            <button id="submit-item">Add Item</button>
+            <button id="close-form">Cancel</button>
+        </div>
+    </div>
+
+    <table id="item-table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+<!-- Couldnt get this to work without placing the script in the main index.html file, so main.js wasn't changed at all -->
     <script>
-        document.getElementById("send-data").onclick = function () {
-            let xhr = new XMLHttpRequest();
-            xhr.open("PUT", "Your Lambda here");
-            xhr.setRequestHeader("Content-Type", "application/json");
-            xhr.send(JSON.stringify({
-                "id": "6666666",
-                "price": 19,
-                "name": "test put value"
-            }));
+        const rainbowLetters = document.querySelectorAll('.rainbow');
+
+        rainbowLetters.forEach(letter => {
+            letter.style.color = 'black'; //initial color
+            letter.addEventListener('mouseover', () => {
+                letter.style.color = getRandomColor();
+            });
+            letter.addEventListener('mouseout', () => {
+                letter.style.color = 'black';
+            });
+        });
+
+        // Function to generate a random color
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
         }
-    </script>
 
-    <button id="load-data">Load Data</button>
-    <p>Loads data from the server</p>
-    <script>
-        document.getElementById("load-data").onclick = function () {
-            let lambda = document.getElementById("lambda-info");
+        document.getElementById("add-new").onclick = function () {
+            document.getElementById("item-form").style.display = "block"; // Show form
+        };
+
+        document.getElementById("close-form").onclick = function () {
+            document.getElementById("item-form").style.display = "none"; // Hide form
+        };
+
+        document.getElementById("submit-item").onclick = function () {
+            let id = document.getElementById("item-id").value;
+            let name = document.getElementById("item-name").value;
+            let price = document.getElementById("item-price").value;
+
+            let xhr = new XMLHttpRequest();
+            xhr.open("PUT", "https://ccwgjp955c.execute-api.us-east-2.amazonaws.com/items");
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onload = function () {
+                loadData();
+                document.getElementById("item-form").style.display = "none"; // Hide form
+            };
+            xhr.send(JSON.stringify({ id, name, price }));
+        };
+
+        document.getElementById("load-data").onclick = loadData;
+
+        function loadData() {
+            let tableBody = document.getElementById("item-table").querySelector("tbody");
+            tableBody.innerHTML = "";
+
             let xhr = new XMLHttpRequest();
             xhr.addEventListener("load", function () {
-                lambda.innerHTML = xhr.response;
+                let items = JSON.parse(xhr.response);
+
+                if (items.length === 0) {
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td></td>
+                    `;
+                    tableBody.appendChild(row);
+                } else {
+                    items.sort((a, b) => a.id - b.id);
+
+                    items.forEach(item => {
+                        let row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${item.id}</td>
+                            <td>${item.name}</td>
+                            <td>${item.price}</td>
+                            <td><button class="delete-button" data-id="${item.id}">Delete</button></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+                attachDeleteHandlers();
             });
-            xhr.open("GET", "Your Lambda here");
+            xhr.open("GET", "https://ccwgjp955c.execute-api.us-east-2.amazonaws.com/items");
             xhr.send();
         }
 
-    </script>
-
-    <hr>
-    <button id="delete-data">Delete Data</button>
-    <p>Deletes a JSON object from the server with 11111</p>
-    <script>
-        document.getElementById("delete-data").onclick = function () {
-            let xhr = new XMLHttpRequest();
-            xhr.open("DELETE", "Your Lambda here");
-            xhr.setRequestHeader("Content-Type", "application/json");
-            xhr.send();
+        function attachDeleteHandlers() {
+            document.querySelectorAll(".delete-button").forEach(button => {
+                button.onclick = function () {
+                    let id = this.getAttribute("data-id");
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("DELETE", `https://ccwgjp955c.execute-api.us-east-2.amazonaws.com/items/${id}`);
+                    xhr.onload = loadData;
+                    xhr.send();
+                };
+            });
         }
     </script>
 </body>
